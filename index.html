@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff0f2">
+  <title>Una invitación especial</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --rose: #f7dce2;
+      --rose-deep: #c94f70;
+      --rose-dark: #87334d;
+      --ink: #492c35;
+      --muted: #937b82;
+      --cream: #fffaf6;
+      --line: #f0dce0;
+      --shadow: 0 24px 70px rgb(137 51 77 / 12%);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 8% 15%, rgb(255 255 255 / 85%), transparent 32%),
+        radial-gradient(ellipse at 92% 85%, rgb(255 224 228 / 80%), transparent 30%),
+        var(--rose);
+      font-family: "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    }
+
+    button, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .page {
+      position: relative;
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      overflow: hidden;
+      padding: 36px 20px;
+      isolation: isolate;
+    }
+
+    .petal {
+      position: fixed;
+      z-index: -1;
+      color: rgb(201 79 112 / 26%);
+      font-family: Georgia, serif;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .petal-one { top: 8%; left: 8%; font-size: 42px; transform: rotate(-20deg); }
+    .petal-two { right: 9%; bottom: 10%; font-size: 54px; transform: rotate(15deg); }
+    .petal-three { top: 18%; right: 15%; font-size: 24px; }
+
+    .invite-card, .planner {
+      width: min(100%, 680px);
+      border: 1px solid rgb(255 255 255 / 80%);
+      border-radius: 30px;
+      background: rgb(255 250 246 / 91%);
+      box-shadow: var(--shadow);
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .invite-card {
+      position: relative;
+      z-index: 1;
+      padding: clamp(34px, 7vw, 66px) 24px 42px;
+      transition: opacity 350ms ease, transform 350ms ease;
+    }
+
+    .eyebrow {
+      margin: 0 0 15px;
+      color: var(--rose-deep);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, p { margin-top: 0; }
+
+    h1 {
+      max-width: 520px;
+      margin: 0 auto 12px;
+      font-size: clamp(35px, 7vw, 57px);
+      font-weight: 400;
+      letter-spacing: -.045em;
+      line-height: 1.08;
+    }
+
+    .subtitle {
+      margin: 0 auto;
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .choice-arena {
+      position: relative;
+      display: flex;
+      min-height: 170px;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      margin-top: 23px;
+    }
+
+    .choice-button {
+      position: relative;
+      z-index: 2;
+      min-width: 116px;
+      min-height: 54px;
+      border: 0;
+      border-radius: 999px;
+      font-family: "Segoe UI", sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .09em;
+      transition: transform 420ms cubic-bezier(.2, .85, .25, 1), box-shadow 200ms ease;
+    }
+
+    .choice-button:focus-visible, .option:focus-visible, .primary-button:focus-visible,
+    .text-button:focus-visible, select:focus-visible {
+      outline: 3px solid #87334d;
+      outline-offset: 4px;
+    }
+
+    .yes-button {
+      z-index: 3;
+      color: white;
+      background: var(--rose-deep);
+      box-shadow: 0 9px 24px rgb(201 79 112 / 30%);
+      transform: scale(var(--yes-scale, 1));
+      transform-origin: center;
+    }
+
+    .yes-button:hover { background: #b84161; }
+
+    .no-button {
+      z-index: 4;
+      color: var(--rose-dark);
+      border: 1px solid #ebcbd3;
+      background: #fff;
+      box-shadow: 0 5px 15px rgb(137 51 77 / 8%);
+      transform: translate(var(--no-x, 0px), var(--no-y, 0px));
+    }
+
+    .yes-button.full-screen {
+      position: fixed;
+      z-index: 10;
+      inset: 0;
+      width: 100vw;
+      width: 100dvw;
+      height: 100vh;
+      height: 100dvh;
+      min-width: 0;
+      min-height: 0;
+      border-radius: 0;
+      box-shadow: none;
+      transform: none;
+      font-size: clamp(30px, 7vw, 64px);
+      letter-spacing: .1em;
+      animation: cover-screen 450ms cubic-bezier(.2, .8, .2, 1) both;
+    }
+
+    @keyframes cover-screen {
+      from { clip-path: circle(0 at 50% 50%); }
+      to { clip-path: circle(150% at 50% 50%); }
+    }
+
+    .hint {
+      margin: -3px 0 0;
+      color: #a78d94;
+      font-family: "Segoe UI", sans-serif;
+      font-size: 12px;
+    }
+
+    .planner {
+      display: none;
+      padding: clamp(28px, 6vw, 50px);
+      text-align: left;
+      animation: appear 500ms ease both;
+    }
+
+    .planner.visible { display: block; }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .planner-heading { text-align: center; }
+    .planner h2 {
+      margin-bottom: 8px;
+      font-size: clamp(31px, 6vw, 45px);
+      font-weight: 400;
+      letter-spacing: -.035em;
+    }
+
+    .planner-heading .subtitle { margin-bottom: 30px; }
+
+    .form-section { margin-top: 25px; }
+
+    .section-label {
+      display: block;
+      margin-bottom: 11px;
+      color: var(--rose-dark);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .restaurant-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .option {
+      display: flex;
+      min-height: 49px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      color: var(--ink);
+      background: #fff;
+      font-family: "Segoe UI", sans-serif;
+      font-size: 14px;
+      transition: background 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
+    }
+
+    .option:hover { transform: translateY(-1px); border-color: #d98a9e; }
+    .option[aria-pressed="true"] {
+      border-color: var(--rose-deep);
+      color: #8c3550;
+      background: #fff0f3;
+      box-shadow: inset 0 0 0 1px var(--rose-deep);
+    }
+
+    .restaurant-option {
+      min-height: 70px;
+      flex-direction: column;
+      gap: 4px;
+      text-align: center;
+    }
+
+    .restaurant-name { font-weight: 700; line-height: 1.25; }
+    .restaurant-district { color: var(--muted); font-size: 12px; }
+
+    .primary-button {
+      width: 100%;
+      min-height: 54px;
+      margin-top: 27px;
+      border: 0;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--rose-deep);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 14px;
+      font-weight: 750;
+      letter-spacing: .05em;
+      box-shadow: 0 8px 20px rgb(201 79 112 / 22%);
+    }
+
+    .primary-button:hover { background: #b84161; }
+
+    .form-message {
+      min-height: 22px;
+      margin: 12px 0 0;
+      color: #a43c58;
+      font-family: "Segoe UI", sans-serif;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .summary {
+      display: none;
+      margin-top: 28px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 19px;
+      background: white;
+    }
+
+    .summary.visible { display: block; animation: appear 400ms ease both; }
+
+    .summary-top {
+      padding: 22px 24px 18px;
+      color: white;
+      background: var(--rose-dark);
+      text-align: center;
+    }
+
+    .summary-top .eyebrow { margin-bottom: 7px; color: #f4c7d1; }
+    .summary-top h3 { margin: 0; font-size: 27px; font-weight: 400; }
+
+    .summary-details { padding: 7px 24px 0; }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 14px 0;
+      border-bottom: 1px dashed var(--line);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+
+    .detail-row:last-child { border-bottom: 0; }
+    .detail-label { color: var(--muted); }
+    .detail-value { font-weight: 650; text-align: right; }
+
+    .closing-note {
+      margin: 0;
+      padding: 17px 20px 21px;
+      color: var(--rose-dark);
+      background: #fff3f5;
+      font-size: 21px;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .text-button {
+      display: block;
+      margin: 15px auto 0;
+      padding: 8px 12px;
+      border: 0;
+      color: var(--muted);
+      background: transparent;
+      font-family: "Segoe UI", sans-serif;
+      font-size: 13px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .music-note {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      .page { padding: 18px 12px; }
+      .invite-card { padding-inline: 18px; }
+      .choice-arena { gap: 12px; }
+      .choice-button { min-width: 102px; }
+      .options { gap: 7px; }
+      .option { padding-inline: 7px; font-size: 13px; }
+      .restaurant-option { font-size: 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <span class="petal petal-one" aria-hidden="true">✿</span>
+    <span class="petal petal-two" aria-hidden="true">♡</span>
+    <span class="petal petal-three" aria-hidden="true">✧</span>
+
+    <section class="invite-card" id="invitation" aria-labelledby="invitation-title">
+      <p class="eyebrow">Tengo una pregunta para ti</p>
+      <h1 id="invitation-title">¿Quieres salir a comer conmigo?</h1>
+      <p class="subtitle">Prometo buena comida y una linda compañía. ♡</p>
+      <div class="choice-arena" id="choice-arena">
+        <button class="choice-button yes-button" id="yes-button" type="button">SÍ ♡</button>
+        <button class="choice-button no-button" id="no-button" type="button">NO</button>
+      </div>
+      <p class="hint" id="hint">Elige con el corazón…</p>
+    </section>
+
+    <section class="planner" id="planner" aria-labelledby="planner-title">
+      <header class="planner-heading">
+        <p class="eyebrow">¡Sabía que dirías que sí!</p>
+        <h2 id="planner-title">Armemos nuestro plan</h2>
+        <p class="subtitle">Escoge tus favoritos y yo me encargo del resto. ♡</p>
+      </header>
+
+      <div class="form-section">
+        <span class="section-label" id="day-label">01 · ¿Qué día te gustaría?</span>
+        <div class="options" role="group" aria-labelledby="day-label" data-group="day">
+          <button class="option" type="button" aria-pressed="false" data-value="Lunes">Lunes</button>
+          <button class="option" type="button" aria-pressed="false" data-value="Jueves">Jueves</button>
+          <button class="option" type="button" aria-pressed="false" data-value="Domingo">Domingo</button>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <span class="section-label" id="time-label">02 · ¿A qué hora?</span>
+        <div class="options" role="group" aria-labelledby="time-label" data-group="time">
+          <button class="option" type="button" aria-pressed="false" data-value="2:00 p. m.">2:00 p. m.</button>
+          <button class="option" type="button" aria-pressed="false" data-value="4:00 p. m.">4:00 p. m.</button>
+          <button class="option" type="button" aria-pressed="false" data-value="7:00 p. m.">7:00 p. m.</button>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <span class="section-label" id="restaurant-label">03 · ¿Dónde te gustaría cenar?</span>
+        <div class="options restaurant-options" role="group" aria-labelledby="restaurant-label" data-group="restaurant">
+          <button class="option restaurant-option" type="button" aria-pressed="false" data-value="Casa Tambo Restaurant">
+            <span class="restaurant-name">Casa Tambo Restaurant</span>
+            <span class="restaurant-district">Lima</span>
+          </button>
+          <button class="option restaurant-option" type="button" aria-pressed="false" data-value="La Terraza Del Pardo">
+            <span class="restaurant-name">La Terraza Del Pardo</span>
+            <span class="restaurant-district">Miraflores</span>
+          </button>
+          <button class="option restaurant-option" type="button" aria-pressed="false" data-value="Amoramar">
+            <span class="restaurant-name">Amoramar</span>
+            <span class="restaurant-district">San Isidro</span>
+          </button>
+          <button class="option restaurant-option" type="button" aria-pressed="false" data-value="XOMA Gastronómico">
+            <span class="restaurant-name">XOMA Gastronómico</span>
+            <span class="restaurant-district">San Isidro</span>
+          </button>
+        </div>
+      </div>
+
+      <button class="primary-button" id="confirm-button" type="button">Ver nuestro plan ♡</button>
+      <p class="form-message" id="form-message" role="status" aria-live="polite"></p>
+
+      <section class="summary" id="summary" aria-labelledby="summary-title" aria-live="polite">
+        <div class="summary-top">
+          <p class="eyebrow">Un plan hecho por ti</p>
+          <h3 id="summary-title">Nuestra cita ♡</h3>
+        </div>
+        <div class="summary-details">
+          <div class="detail-row"><span class="detail-label">Día</span><span class="detail-value" id="summary-day"></span></div>
+          <div class="detail-row"><span class="detail-label">Hora</span><span class="detail-value" id="summary-time"></span></div>
+          <div class="detail-row"><span class="detail-label">Restaurante</span><span class="detail-value" id="summary-restaurant"></span></div>
+        </div>
+        <p class="closing-note">Espero el día con ansias ✨</p>
+      </section>
+      <button class="text-button" id="edit-button" type="button" hidden>Editar mis elecciones</button>
+      <p class="music-note" id="music-note" role="status" aria-live="polite"></p>
+    </section>
+
+    <audio id="date-music" src="musica.mp3" preload="auto" loop></audio>
+  </main>
+
+  <script>
+    const invitation = document.getElementById("invitation");
+    const planner = document.getElementById("planner");
+    const yesButton = document.getElementById("yes-button");
+    const noButton = document.getElementById("no-button");
+    const hint = document.getElementById("hint");
+    const audio = document.getElementById("date-music");
+    const musicNote = document.getElementById("music-note");
+    const formMessage = document.getElementById("form-message");
+    const summary = document.getElementById("summary");
+    const editButton = document.getElementById("edit-button");
+    const choices = { day: "", time: "", restaurant: "" };
+    let noAttempts = 0;
+
+    document.querySelectorAll(".options").forEach((group) => {
+      group.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-value]");
+        if (!button) return;
+
+        group.querySelectorAll(".option").forEach((option) => {
+          option.setAttribute("aria-pressed", String(option === button));
+        });
+        choices[group.dataset.group] = button.dataset.value;
+        formMessage.textContent = "";
+      });
+    });
+
+    noButton.addEventListener("click", () => {
+      noAttempts += 1;
+      if (noAttempts >= 6) {
+        noButton.hidden = true;
+        hint.textContent = "¡El SÍ ya ocupa toda la pantalla! ♡";
+        yesButton.classList.add("full-screen");
+        return;
+      }
+
+      const arena = document.getElementById("choice-arena");
+      const rangeX = Math.max(40, arena.clientWidth * 0.32);
+      const rangeY = Math.max(28, arena.clientHeight * 0.25);
+      const x = Math.round((Math.random() * 2 - 1) * rangeX);
+      const y = Math.round((Math.random() * 2 - 1) * rangeY);
+      noButton.style.setProperty("--no-x", `${x}px`);
+      noButton.style.setProperty("--no-y", `${y}px`);
+      yesButton.style.setProperty("--yes-scale", String(1 + noAttempts * 0.48));
+    });
+
+    yesButton.addEventListener("click", () => {
+      invitation.hidden = true;
+      planner.classList.add("visible");
+      planner.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      audio.play().then(() => {
+        musicNote.textContent = "♪ Nuestra musiquita ya está sonando";
+      }).catch(() => {
+        musicNote.textContent = "No se pudo iniciar la música. Revisa que musica.mp3 esté junto a index.html y vuelve a intentarlo.";
+      });
+    });
+
+    document.getElementById("confirm-button").addEventListener("click", () => {
+      const missing = Object.entries(choices).filter(([, value]) => !value);
+      if (missing.length) {
+        const names = { day: "un día", time: "una hora", restaurant: "un restaurante" };
+        formMessage.textContent = `Te falta elegir ${missing.map(([key]) => names[key]).join(", ")}.`;
+        return;
+      }
+
+      document.getElementById("summary-day").textContent = choices.day;
+      document.getElementById("summary-time").textContent = choices.time;
+      document.getElementById("summary-restaurant").textContent = choices.restaurant;
+      summary.classList.add("visible");
+      editButton.hidden = false;
+      formMessage.textContent = "";
+      summary.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    editButton.addEventListener("click", () => {
+      summary.classList.remove("visible");
+      editButton.hidden = true;
+      formMessage.textContent = "";
+    });
+  </script>
+</body>
+</html>
